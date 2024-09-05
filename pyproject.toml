@@ -1,10 +1,11 @@
 [tool.poetry]
 name = "dria_workflows"
-version = "0.1.0"
+version = "0.1.1"
 description = "Enables creation of workflows for Dria Agents"
 authors = ["andthattoo <omer@firstbatch.xyz>"]
 license = "MIT"
 readme = "README.md"
+packages = [{include = "dria_workflows"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -14,6 +15,28 @@ pydantic = "^2.8.2"
 [tool.poetry.scripts]
 dev = "dria_workflows.main:main"
 temp = "dria_workflows.main:main"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.2"
+pytest-cov = "^5.0.0"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--verbose --cov=dria_workflows --cov-report=term-missing"
+
+[tool.coverage.run]
+source = ["dria_workflows"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+    "pass",
+    "except ImportError:",
+]
 
 
 [build-system]

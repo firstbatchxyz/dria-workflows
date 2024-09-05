@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 from .w_types import *
 import json
 
+
 # Workflow components
 class CustomToolTemplate(BaseModel):
     name: str
@@ -13,16 +14,19 @@ class CustomToolTemplate(BaseModel):
     headers: Dict[str, str]
     body: Dict[str, str]
 
+
 class Config(BaseModel):
     max_steps: int
     max_time: int
     tools: List[str] = Field(default_factory=list)
-    custom_tool: Optional[CustomToolTemplate] = None
+    custom_tool: Optional[List[CustomToolTemplate]] = None
     max_tokens: Optional[int] = None
+
 
 class SearchQuery(BaseModel):
     value_type: InputValueType
     key: str
+
 
 class InputValue(BaseModel):
     type: InputValueType
@@ -30,15 +34,18 @@ class InputValue(BaseModel):
     search_query: Optional[SearchQuery] = None
     key: str
 
+
 class Input(BaseModel):
     name: str
     value: InputValue
     required: bool
 
+
 class Output(BaseModel):
     type: OutputType
     key: str
     value: str
+
 
 class Task(BaseModel):
     id: str
@@ -49,15 +56,18 @@ class Task(BaseModel):
     operator: Operator
     outputs: List[Output] = Field(default_factory=list)
 
+
 class TaskPostProcess(BaseModel):
     process_type: PostProcessType
     lhs: Optional[str] = None
     rhs: Optional[str] = None
 
+
 class TaskOutput(BaseModel):
     input: InputValue
     to_json: Optional[bool] = None
     post_process: Optional[List[TaskPostProcess]] = None
+
 
 class Condition(BaseModel):
     input: InputValue
@@ -65,17 +75,19 @@ class Condition(BaseModel):
     expression: Expression
     target_if_not: str
 
+
 class Edge(BaseModel):
     source: str
     target: str
     condition: Optional[Condition] = None
     fallback: Optional[str] = None
 
+
 class Entry(BaseModel):
     value: Union[str, dict]
 
     @classmethod
-    def try_value_or_str(cls, s: str) -> 'Entry':
+    def try_value_or_str(cls, s: str) -> "Entry":
         try:
             return cls(value=json.loads(s))
         except json.JSONDecodeError:
@@ -86,8 +98,10 @@ class Entry(BaseModel):
             return self.value
         return json.dumps(self.value)
 
+
 class StackPage(BaseModel):
     entries: List[Entry] = Field(default_factory=list)
+
 
 class FilePage(BaseModel):
     name: str

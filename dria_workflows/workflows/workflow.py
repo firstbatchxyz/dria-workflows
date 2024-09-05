@@ -1,6 +1,7 @@
 from .interface import *
 from typing import Any, Union
 
+
 class Workflow(BaseModel):
     config: Config
     external_memory: Optional[Dict[str, Union[str, StackPage]]] = None
@@ -19,31 +20,34 @@ class Workflow(BaseModel):
     @staticmethod
     def default_config() -> Config:
         return Config(
-            max_steps=50,
-            max_time=200,
-            tools=["ALL"],
-            custom_tool=None,
-            max_tokens=None
+            max_steps=50, max_time=200, tools=["ALL"], custom_tool=None, max_tokens=None
         )
 
     def add_task(self, task: Task) -> None:
         self.tasks.append(task)
 
-    def add_step(self, source: str, target: str, condition: Optional[Condition] = None, fallback: Optional[str] = None) -> None:
-        edge = Edge(source=source, target=target, condition=condition, fallback=fallback)
+    def add_step(
+        self,
+        source: str,
+        target: str,
+        condition: Optional[Condition] = None,
+        fallback: Optional[str] = None,
+    ) -> None:
+        edge = Edge(
+            source=source, target=target, condition=condition, fallback=fallback
+        )
         self.steps.append(edge)
 
-    def set_return_value(self, value: TaskOutput) -> None:
-        self.return_value = value
+    def save(self, file_path: str) -> None:
+        """
+        Save the workflow as a JSON file.
 
-    def set_max_iterations(self, value: int) -> None:
-        self.config.max_iterations = value
+        Args:
+            file_path (str): The path where the JSON file will be saved.
+        """
+        import json
 
-    def set_timeout(self, value: int) -> None:
-        self.config.timeout = value
+        workflow_dict = self.model_dump(exclude_unset=True, exclude_none=True)
 
-    def set_log_level(self, value: str) -> None:
-        self.config.log_level = value
-
-    def set_max_tokens(self, value:int) -> None:
-        self.config.max_tokens = value
+        with open(file_path, "w") as f:
+            json.dump(workflow_dict, f, indent=2)
