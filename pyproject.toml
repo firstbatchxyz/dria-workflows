@@ -1,11 +1,13 @@
 [tool.poetry]
 name = "dria_workflows"
-version = "0.1.1"
+version = "0.1.2"
 description = "Enables creation of workflows for Dria Agents"
 authors = ["andthattoo <omer@firstbatch.xyz>"]
 license = "MIT"
 readme = "README.md"
 packages = [{include = "dria_workflows"}]
+repository = "https://github.com/firstbatchxyz/dria-workflows"
+keywords = ["workflows", "dria", "agents", "p2p", "decentralized", "llm", "ai"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
