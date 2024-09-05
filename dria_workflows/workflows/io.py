@@ -10,7 +10,7 @@ class Read:
     for reading values from the workflow's memory.
     """
     def new(key:str, required:bool) -> Input:
-        return Input(name=key, value=InputValue(value_type=InputValueType.READ, key=key), required=required)
+        return Input(name=key, value=InputValue(type=InputValueType.READ, key=key), required=required)
     
 class Pop:
     """
@@ -23,7 +23,7 @@ class Pop:
     def new(key: str, required: bool) -> Input:
         return Input(
             name=key,
-            value=InputValue(value_type=InputValueType.POP, key=key),
+            value=InputValue(type=InputValueType.POP, key=key),
             required=required
         )
 
@@ -38,7 +38,7 @@ class Peek:
     def new(key: str, index:int, required: bool) -> Input:
         return Input(
             name=key,
-            value=InputValue(value_type=InputValueType.PEEK, key=key, index=index),
+            value=InputValue(type=InputValueType.PEEK, key=key, index=index),
             required=required
         )
 
@@ -53,7 +53,7 @@ class GetAll:
     def new(key: str, required: bool) -> Input:
         return Input(
             name=key,
-            value=InputValue(value_type=InputValueType.GET_ALL, key=key),
+            value=InputValue(type=InputValueType.GET_ALL, key=key),
             required=required
         )
 
@@ -68,7 +68,7 @@ class Size:
     def new(key: str, required: bool) -> Input:
         return Input(
             name=key,
-            value=InputValue(value_type=InputValueType.SIZE, key=key),
+            value=InputValue(type=InputValueType.SIZE, key=key),
             required=required
         )
 
@@ -83,7 +83,7 @@ class String:
     def new(key: str, value: str, required: bool) -> Input:
         return Input(
             name=key,
-            value=InputValue(value_type=InputValueType.STRING, key=value),
+            value=InputValue(type=InputValueType.STRING, key=value),
             required=required
         )
 
@@ -99,7 +99,7 @@ class Write:
     @staticmethod
     def new(key: str) -> Output:
         return Output(
-            output_type=OutputType.WRITE,
+            type=OutputType.WRITE,
             key=key,
             value="__result"
         )
@@ -114,7 +114,7 @@ class Insert:
     @staticmethod
     def new(key: str) -> Output:
         return Output(
-            output_type=OutputType.INSERT,
+            type=OutputType.INSERT,
             key=key,
             value="__result"
         )
@@ -129,7 +129,7 @@ class Push:
     @staticmethod
     def new(key: str) -> Output:
         return Output(
-            output_type=OutputType.PUSH,
+            type=OutputType.PUSH,
             key=key,
             value="__result"
         )

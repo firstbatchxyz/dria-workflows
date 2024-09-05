@@ -1,5 +1,5 @@
 from dria_workflows.workflows import WorkflowBuilder, ConditionBuilder, Operator, Write, GetAll, Read, Push, Edge, Expression
-
+from dria_workflows.validate import validate_workflow_json
 def main():
     builder = WorkflowBuilder(memory={"topic_1":"Linear Algebra", "topic_2":"CUDA"})
     builder.generative_step(id="create_query", prompt="Write down a search query related to following topics: {{topic_1}} and {{topic_2}}. If any, avoid asking questions asked before: {{history}}", operator=Operator.GENERATION, inputs=[GetAll.new("history", False)], outputs=[Write.new("search_query")])
@@ -13,7 +13,14 @@ def main():
     ]
 
     builder.flow(flow)
+    builder.set_return_value("result")
     workflow = builder.build()
+
+    workflow_json = workflow.model_dump_json(indent=2, exclude_unset=True, exclude_none=True)
+    #print(workflow_json)
+
+    validate_workflow_json(workflow_json)
+
 
 if __name__ == "__main__":
     main() 

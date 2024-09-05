@@ -30,13 +30,18 @@ schema = {
         "external_memory": {
             "type": "object",
             "additionalProperties": {
-                "type": "array",
-                "items": {
-                    "oneOf": [
-                        {"type": "string"},
-                        {"type": "object"}
-                    ]
-                }
+                "oneOf": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "oneOf": [
+                                {"type": "string"},
+                                {"type": "object"}
+                            ]
+                        }
+                    },
+                    {"type": "string"}
+                ]
             }
         },
         "tasks": {

@@ -25,7 +25,7 @@ class SearchQuery(BaseModel):
     key: str
 
 class InputValue(BaseModel):
-    value_type: InputValueType
+    type: InputValueType
     index: Optional[int] = None
     search_query: Optional[SearchQuery] = None
     key: str
@@ -36,7 +36,7 @@ class Input(BaseModel):
     required: bool
 
 class Output(BaseModel):
-    output_type: OutputType
+    type: OutputType
     key: str
     value: str
 

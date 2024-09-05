@@ -1,9 +1,9 @@
 from .interface import *
-from typing import Any
+from typing import Any, Union
 
 class Workflow(BaseModel):
     config: Config
-    external_memory: Optional[Dict[str, StackPage]] = None
+    external_memory: Optional[Dict[str, Union[str, StackPage]]] = None
     tasks: List[Task] = []
     steps: List[Edge] = []
     return_value: Optional[TaskOutput] = None

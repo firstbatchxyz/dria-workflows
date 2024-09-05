@@ -105,14 +105,15 @@ class TaskBuilder:
     
     @classmethod
     def _add_input(cls, key: str, value_type: InputValueType) -> None:
-        input_value = InputValue(value_type=value_type, key=key)
+        input_value = InputValue(type=value_type, key=key)
         input_obj = Input(name=key, value=input_value, required=True)
         cls.inputs.append(input_obj)
 
 class WorkflowBuilder:
     def __init__(self, memory={}):
         self.workflow = Workflow()
-        self.tasks = []
+        self.workflow.external_memory = memory
+        self.tasks: List[Task] = []
         self.steps = []
         self.memory = memory
         # match memory with InputValueType
@@ -163,6 +164,22 @@ class WorkflowBuilder:
         self.tasks.append(task.build())
 
     def search_step(self, search_query:str, id: Optional[str] = None, inputs:Optional[List[Input]]=[], outputs:Optional[List[Output]]=[]):
+        """
+        Add a search step to the workflow.
+
+        Args:
+            search_query (str): The search query to be used.
+            id (Optional[str]): The unique identifier for this task. If None, a default id will be assigned.
+            inputs (Optional[List[Input]]): List of input parameters for the search task.
+            outputs (Optional[List[Output]]): List of output parameters for the search task.
+
+        Raises:
+            ValueError: If a task with the given id already exists.
+
+        Note:
+            This method creates a new task with the SEARCH operator and adds it to the workflow.
+            It also updates the internal memory mapping for any new outputs.
+        """
         if id is None:
             id = str(len(self.tasks))
         else:
@@ -211,6 +228,13 @@ class WorkflowBuilder:
         # Add the steps to the workflow
         for step in self.steps:
             self.workflow.add_step(step.source, step.target, step.condition, step.fallback)
+
+        if self.workflow.return_value is None:
+            # Print out existing outputs
+            keys = [output.key for task in self.tasks for output in task.outputs]
+
+            print(f"Warning: No return value set for the workflow. Select one of the {keys} by running set_return_value('key')")
+
         return self.workflow
 
     def flow(self, edges:List[Edge]):
@@ -222,8 +246,28 @@ class WorkflowBuilder:
                     raise ValueError(f"Target task '{edge.target}' not found")
             self.steps.append(edge)
 
-    def set_return_value(self, value: TaskOutput):
-        self.return_value = value
+    def set_return_value(self, key: str):
+        """
+        Set the return value for the workflow.
+
+        This method sets the return value of the workflow to the specified key.
+        The key should correspond to an output key from one of the tasks in the workflow.
+
+        Args:
+            key (str): The key of the output to be set as the return value.
+
+        Returns:
+            None
+
+        Raises:
+            ValueError: If the specified key does not correspond to any output in the workflow tasks.
+        """
+        # Check if the key exists in any of the task outputs
+        if not any(key in [output.key for output in task.outputs] for task in self.tasks):
+            raise ValueError(f"The key '{key}' does not correspond to any output in the workflow tasks.")
+
+        input_value = InputValue(type=self.map[key][0], key=key)
+        self.workflow.return_value = TaskOutput(input=input_value)
 
     def set_max_tokens(self, max_tokens: int):
         """
