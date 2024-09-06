@@ -1,5 +1,5 @@
 import logging
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, List, Union, Dict
 from .interface import (
     Input,
@@ -38,9 +38,7 @@ class ConditionBuilder:
 
 class DraftTask(Task):
     required_inputs: Optional[List[str]] = Field(default=None)
-
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def add_input(self, input: Input) -> "DraftTask":
         if not self.inputs:
