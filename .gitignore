@@ -4,3 +4,5 @@
 poetry.lock
 .idea/
 dist
+.coverage.*
+.coverage

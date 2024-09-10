@@ -95,6 +95,7 @@ class TaskBuilder:
         mmap: dict,
         prompt: Optional[str] = None,
         path: Optional[str] = None,
+        _inputs: Optional[List[Input]] = None,
         name: str = "Task",
         description: str = "Task Description",
     ) -> DraftTask:
@@ -111,6 +112,8 @@ class TaskBuilder:
         input_names = cls._extract_inputs(prompt)
         # add inputs using mmap
         for input_name in input_names:
+            if _inputs and any(input_name == input.value.key for input in _inputs):
+                continue
             if input_name in mmap:
                 input_type = mmap[input_name]
                 if InputValueType.GET_ALL in input_type:
@@ -195,8 +198,9 @@ class WorkflowBuilder:
 
     def generative_step(
         self,
-        prompt: str,
         operator: Union[Operator.GENERATION, Operator.FUNCTION_CALLING],
+        prompt: Optional[str] = None,
+        path: Optional[str] = None,
         id: Optional[str] = None,
         inputs: Optional[List[Input]] = [],
         outputs: Optional[List[Output]] = [],
@@ -204,6 +208,9 @@ class WorkflowBuilder:
         """
         Add a step that uses LLMs. This can either be generation or function_calling
         """
+        if prompt is None and path is None:
+            raise ValueError("Either prompt or path for an .md file must be provided")
+
         if id is None:
             id = str(len(self.tasks))
         else:
@@ -211,7 +218,7 @@ class WorkflowBuilder:
             if any(task.id == id for task in self.tasks):
                 raise ValueError(f"Task with id '{id}' already exists")
 
-        task = TaskBuilder.new(id=id, prompt=prompt, operator=operator, mmap=self.map)
+        task = TaskBuilder.new(id=id, prompt=prompt, path=path, _inputs=inputs, operator=operator, mmap=self.map)
 
         for input in inputs:
             task.add_input(input)
@@ -252,7 +259,7 @@ class WorkflowBuilder:
                 raise ValueError(f"Task with id '{id}' already exists")
 
         task = TaskBuilder.new(
-            id=id, prompt=search_query, operator=Operator.SEARCH, mmap=self.map
+            id=id, prompt=search_query, _inputs=inputs, operator=Operator.SEARCH, mmap=self.map
         )
 
         for input in inputs:
