@@ -224,7 +224,12 @@ class WorkflowBuilder:
             task.add_input(input)
         for output in outputs:
             task.add_output(output)
-            self.__mmap(output.key, output.value)
+            if output.type == OutputType.PUSH:
+                self.__mmap(output.key, [" "])
+            elif output.type == OutputType.WRITE:
+                self.__mmap(output.key, "")
+            else:
+                pass
 
         self.tasks.append(task.build())
 
@@ -392,8 +397,11 @@ class WorkflowBuilder:
                 f"The key '{key}' does not correspond to any output in the workflow tasks."
             )
 
+        to_json = False
         input_value = InputValue(type=self.map[key][0], key=key)
-        self.workflow.return_value = TaskOutput(input=input_value)
+        if self.map[key][0] == InputValueType.GET_ALL:
+            to_json = True
+        self.workflow.return_value = TaskOutput(input=input_value, to_json=to_json)
 
     def set_max_tokens(self, max_tokens: int):
         """
