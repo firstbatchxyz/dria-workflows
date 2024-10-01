@@ -1,5 +1,5 @@
 import logging
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import Field, ConfigDict
 from typing import Optional, List, Union, Dict
 from .interface import (
     Input,
@@ -9,15 +9,13 @@ from .interface import (
     Task,
     TaskOutput,
     Condition,
-    Config,
     OutputType,
     Expression,
 )
 from .workflow import Workflow, Edge
 from .w_types import Operator
-from .io import Read, GetAll, Size, Peek, Pop, INPUTS, OUTPUTS
-from .tools import ToolBuilder, HttpMethod, HttpRequestTool, CustomTool, CustomToolTemplate, CustomToolMode
-import os
+from .tools import ToolBuilder, HttpRequestTool, CustomTool, CustomToolMode
+import json
 import re
 
 
@@ -357,6 +355,10 @@ class WorkflowBuilder:
             )
 
         return self.workflow
+
+    def build_to_dict(self) -> Dict:
+        workflow = self.build()
+        return json.loads(workflow.model_dump_json(exclude_unset=True, exclude_none=True))
 
     def flow(self, edges: List[Edge]):
         for edge in edges:

@@ -266,6 +266,9 @@ def validate_workflow_json(json_data):
 
 
 if __name__ == "__main__":
+
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
     wf = {
         "name": "Custom Tool",
         "description": "This is a simple workflow for custom tools",
@@ -350,4 +353,6 @@ if __name__ == "__main__":
         }
     }
 
-    validate_workflow_json(json.dumps(wf, indent=2))
+    wf2 = {'config': {'max_steps': 50, 'max_time': 200, 'tools': ['ALL'], 'custom_tools': [{'name': 'calculator', 'description': 'A tool sums integers', 'mode': 'custom', 'parameters': {'type': 'object', 'properties': {'lfs': {'type': 'integer', 'description': 'Left hand side of sum'}, 'rhs': {'type': 'integer', 'description': 'Right hand side of sum'}}, 'required': []}}]}, 'external_memory': {}, 'tasks': [{'id': 'sum', 'name': 'Task', 'description': 'Task Description', 'prompt': 'What is 10932 + 20934?', 'inputs': [], 'operator': 'function_calling_raw', 'outputs': [{'type': 'write', 'key': 'call', 'value': '__result'}]}, {'id': '_end', 'name': 'Task', 'description': 'Task Description', 'prompt': '', 'inputs': [], 'operator': 'end', 'outputs': []}], 'steps': [{'source': 'sum', 'target': '_end'}], 'return_value': {'input': {'type': 'read', 'key': 'call'}, 'to_json': False}}
+
+    validate_workflow_json(json.dumps(wf2, indent=2))
