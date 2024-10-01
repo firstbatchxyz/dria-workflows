@@ -1,14 +1,18 @@
 import json
 from abc import ABC, abstractmethod
-from typing import List
-
+from typing import List, Dict, Any
+from types import SimpleNamespace
 
 class ParseResult:
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
+    name: str
+    arguments: Any
 
-    def to_json(self):
-        return json.dumps(self.__dict__)
+    def __init__(self, **kwargs):
+        self.name = kwargs.get("name")
+        arguments_dict = kwargs.get("arguments")
+        if not self.name or not arguments_dict:
+            raise ValueError("Both 'name' and 'arguments' are required.")
+        self.arguments = SimpleNamespace(**arguments_dict)
 
 
 class BaseParser(ABC):
