@@ -66,9 +66,6 @@ class CustomToolTemplate(BaseModel):
         return data
 
 
-
-
-
 class BaseTool(BaseModel):
     name: str
     description: str

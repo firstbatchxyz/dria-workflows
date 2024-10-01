@@ -306,7 +306,8 @@ class WorkflowBuilder:
             raise ValueError(
                 "Custom tools are not supported with function_calling tasks. Use FUNCTION_CALLING_RAW instead.")
 
-        self.workflow.config.custom_tools = [tool.serialize_model() for tool in self.workflow.config.custom_tools]
+        if self.workflow.config.custom_tools:
+            self.workflow.config.custom_tools = [tool.serialize_model() for tool in self.workflow.config.custom_tools]
 
         ending_task = TaskBuilder.new(
             id="_end", prompt="", operator=Operator.END, mmap=self.map
