@@ -300,7 +300,8 @@ class WorkflowBuilder:
         for task in self.tasks:
             self.workflow.add_task(task)
 
-        if (any(tool.mode_template.mode == CustomToolMode.CUSTOM for tool in self.workflow.config.custom_tools)
+        if (self.workflow.config.custom_tools and any(tool.mode_template.mode == CustomToolMode.CUSTOM for tool in
+                                                      self.workflow.config.custom_tools)
                 and any(task.operator == Operator.FUNCTION_CALLING for task in self.workflow.tasks)):
             raise ValueError(
                 "Custom tools are not supported with function_calling tasks. Use FUNCTION_CALLING_RAW instead.")
