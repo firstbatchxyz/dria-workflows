@@ -7,7 +7,6 @@ from typing import Optional, Dict, Any, Union, List, Literal, Type, get_args, ge
 from enum import Enum
 import json
 
-
 class HttpMethod(str, Enum):
     GET = "GET"
     POST = "POST"
@@ -15,18 +14,22 @@ class HttpMethod(str, Enum):
     DELETE = "DELETE"
     PATCH = "PATCH"
 
+
 class CustomToolMode(str, Enum):
     CUSTOM = "custom"
     HTTP_REQUEST = "http_request"
+
 
 class ParameterProperty(BaseModel):
     type: str
     description: str
 
+
 class CustomParameters(BaseModel):
     type: Literal["object"] = "object"
     properties: Dict[str, ParameterProperty]
     required: List[str]
+
 
 class CustomToolModeTemplate(BaseModel):
     mode: CustomToolMode
@@ -34,9 +37,11 @@ class CustomToolModeTemplate(BaseModel):
     class Config:
         use_enum_values = True
 
+
 class CustomToolCustom(CustomToolModeTemplate):
     mode: CustomToolMode = CustomToolMode.CUSTOM
     parameters: CustomParameters
+
 
 class CustomToolHttpRequest(CustomToolModeTemplate):
     mode: CustomToolMode = CustomToolMode.HTTP_REQUEST
@@ -44,6 +49,7 @@ class CustomToolHttpRequest(CustomToolModeTemplate):
     method: HttpMethod
     headers: Optional[Dict[str, str]] = None
     body: Optional[Dict[str, Any]] = None
+
 
 class CustomToolTemplate(BaseModel):
     name: str
@@ -58,6 +64,10 @@ class CustomToolTemplate(BaseModel):
         mode_template = data.pop('mode')
         data.update(mode_template)
         return data
+
+
+
+
 
 class BaseTool(BaseModel):
     name: str
@@ -162,7 +172,7 @@ if __name__ == "__main__":
         lang: Optional[str] = Field(None, description="The language for the search")
         n_results: Optional[int] = Field(None, description="The number of results to return")
 
-    search_tool_instance = SearchTool(query="example")
+    search_tool_instance = SearchTool(query="")
     search_tool = ToolBuilder.build(search_tool_instance)
     print("Search Tool:")
     print(json.dumps(search_tool.serialize_model(), indent=2))

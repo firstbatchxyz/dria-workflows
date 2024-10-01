@@ -2,24 +2,16 @@ from typing import Dict, List, Optional, Union
 from enum import Enum
 from pydantic import BaseModel, Field
 from .w_types import *
+from .tools import CustomToolTemplate
 import json
 
 
 # Workflow components
-class CustomToolTemplate(BaseModel):
-    name: str
-    description: str
-    url: str
-    method: str
-    headers: Dict[str, str]
-    body: Dict[str, str]
-
-
 class Config(BaseModel):
     max_steps: int
     max_time: int
     tools: List[str] = Field(default_factory=list)
-    custom_tool: Optional[List[CustomToolTemplate]] = None
+    custom_tools: Optional[List[Union[Dict, CustomToolTemplate]]] = None
     max_tokens: Optional[int] = None
 
 

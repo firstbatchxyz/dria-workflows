@@ -21,6 +21,7 @@ class OutputType(str, Enum):
 class Operator(str, Enum):
     GENERATION = "generation"
     FUNCTION_CALLING = "function_calling"
+    FUNCTION_CALLING_RAW = "function_calling_raw"
     SEARCH = "search"
     SAMPLE = "sample"
     END = "end"

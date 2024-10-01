@@ -16,7 +16,7 @@ from .interface import (
 from .workflow import Workflow, Edge
 from .w_types import Operator
 from .io import Read, GetAll, Size, Peek, Pop, INPUTS, OUTPUTS
-from .tools import ToolBuilder, HttpMethod, HttpRequestTool, CustomTool
+from .tools import ToolBuilder, HttpMethod, HttpRequestTool, CustomTool, CustomToolTemplate, CustomToolMode
 import os
 import re
 
@@ -157,7 +157,9 @@ class TaskBuilder:
 
 
 class WorkflowBuilder:
-    def __init__(self, memory={}):
+    def __init__(self, memory=None):
+        if memory is None:
+            memory = dict()
         self.workflow = Workflow()
         self.workflow.external_memory = memory
         self.tasks: List[Task] = []
@@ -202,12 +204,16 @@ class WorkflowBuilder:
         prompt: Optional[str] = None,
         path: Optional[str] = None,
         id: Optional[str] = None,
-        inputs: Optional[List[Input]] = [],
-        outputs: Optional[List[Output]] = [],
+            inputs=None,
+            outputs=None,
     ):
         """
         Add a step that uses LLMs. This can either be generation or function_calling
         """
+        if outputs is None:
+            outputs = []
+        if inputs is None:
+            inputs = []
         if prompt is None and path is None:
             raise ValueError("Either prompt or path for an .md file must be provided")
 
@@ -237,8 +243,8 @@ class WorkflowBuilder:
         self,
         search_query: str,
         id: Optional[str] = None,
-        inputs: Optional[List[Input]] = [],
-        outputs: Optional[List[Output]] = [],
+            inputs=None,
+            outputs=None,
     ):
         """
         Add a search step to the workflow.
@@ -256,6 +262,10 @@ class WorkflowBuilder:
             This method creates a new task with the SEARCH operator and adds it to the workflow.
             It also updates the internal memory mapping for any new outputs.
         """
+        if outputs is None:
+            outputs = []
+        if inputs is None:
+            inputs = []
         if id is None:
             id = str(len(self.tasks))
         else:
@@ -277,43 +287,25 @@ class WorkflowBuilder:
 
     def add_custom_tool(
         self,
-        name: str,
-        description: str,
-        url: str,
-        method: HttpMethod,
-        headers: Optional[Dict[str, str]] = None,
-        body: Optional[Dict[str, str]] = None,
+        tool: Union[CustomTool, HttpRequestTool]
     ):
-        """
-        Add a custom tool to the workflow configuration.
-
-        Args:
-            name (str): The name of the custom tool.
-            description (str): A brief description of the custom tool.
-            url (str): The URL endpoint for the custom tool.
-            method (HttpMethod): The HTTP method to be used (GET, POST, PUT, DELETE, PATCH).
-            headers (Optional[Dict[str, str]]): Optional headers for the HTTP request.
-            body (Optional[Dict[str, str]]): Optional body for the HTTP request.
-
-        Raises:
-            ValueError: If the URL is invalid, headers are not strings, or if the body is missing for POST, PUT, or PATCH requests.
-
-        Note:
-            This method creates a new CustomToolTemplate using the CustomToolBuilder and adds it to the workflow configuration.
-            If a custom tool already exists, it will be replaced with the new one.
-        """
-        if not self.workflow.config.custom_tool:
-            self.workflow.config.custom_tool = [
-                ToolBuilder.build(name, description, url, method, headers, body)
-            ]
-        else:
-            self.workflow.config.custom_tool.append(
-                ToolBuilder.build(name, description, url, method, headers, body)
-            )
+        custom_tool = ToolBuilder.build(tool)
+        self.workflow.config.custom_tools = self.workflow.config.custom_tools or []
+        self.workflow.config.custom_tools.append(
+            custom_tool
+        )
 
     def build(self) -> Workflow:
+
         for task in self.tasks:
             self.workflow.add_task(task)
+
+        if (any(tool.mode_template.mode == CustomToolMode.CUSTOM for tool in self.workflow.config.custom_tools)
+                and any(task.operator == Operator.FUNCTION_CALLING_RAW for task in self.workflow.tasks)):
+            raise ValueError(
+                "Custom tools are not supported with function_calling tasks. Use FUNCTION_CALLING_RAW instead.")
+
+        self.workflow.config.custom_tools = [tool.serialize_model() for tool in self.workflow.config.custom_tools]
 
         ending_task = TaskBuilder.new(
             id="_end", prompt="", operator=Operator.END, mmap=self.map

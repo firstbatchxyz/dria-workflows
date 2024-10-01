@@ -1,4 +1,4 @@
-from .builder import ToolBuilder, HttpRequestTool, CustomTool, HttpMethod
+from .builder import ToolBuilder, HttpRequestTool, CustomTool, HttpMethod, CustomToolTemplate, CustomToolMode
 from .parsers import NousParser, LlamaParser
 
 __all__ = [
@@ -6,5 +6,7 @@ __all__ = [
     "HttpRequestTool",
     "CustomTool",
     "NousParser",
-    "LlamaParser"
+    "LlamaParser",
+    "CustomToolTemplate",
+    "CustomToolMode",
 ]

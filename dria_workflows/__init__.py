@@ -33,4 +33,8 @@ __all__ = [
     "Write",
     "Insert",
     "Push",
+    "NousParser",
+    "LlamaParser",
+    "CustomTool",
+    "HttpRequestTool",
 ]
