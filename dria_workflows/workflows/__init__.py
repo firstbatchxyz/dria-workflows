@@ -1,6 +1,7 @@
 from .workflow import Workflow
 from .builder import WorkflowBuilder, ConditionBuilder
 from .interface import Config, Task, Edge, TaskOutput, Condition
+from .tools import NousParser, LlamaParser
 from .w_types import (
     InputValueType,
     OutputType,
@@ -37,4 +38,6 @@ __all__ = [
     "Write",
     "Insert",
     "Push",
+    "NousParser",
+    "LlamaParser",
 ]

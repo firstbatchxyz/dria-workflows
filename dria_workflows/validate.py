@@ -19,12 +19,13 @@ schema = {
                         "properties": {
                             "name": {"type": "string"},
                             "description": {"type": "string"},
+                            "mode": {"type": "string"},
                             "url": {"type": "string"},
                             "method": {"type": "string"},
                             "headers": {"type": "object"},
                             "body": {"type": "object"},
                         },
-                        "required": ["name", "description", "url", "method"],
+                        "required": ["name", "description", "mode"],
                     },
                 },
                 "max_tokens": {"type": ["integer", "null"], "minimum": 0},
@@ -107,6 +108,7 @@ schema = {
                         "enum": [
                             "generation",
                             "function_calling",
+                            "function_calling_raw",
                             "check",
                             "search",
                             "sample",
@@ -264,6 +266,88 @@ def validate_workflow_json(json_data):
 
 
 if __name__ == "__main__":
-    with open("conversations/subqueries/conversation.json", "r") as file:
-        json_data = file.read()
-    validate_workflow_json(json_data)
+    wf = {
+        "name": "Custom Tool",
+        "description": "This is a simple workflow for custom tools",
+        "config":{
+            "max_steps": 5,
+            "max_time": 100,
+            "max_tokens": 1024,
+            "tools": [],
+            "custom_tools":[{
+                "name": "PriceFeedRequest",
+                "description": "Fetches price feed from Gemini API",
+                "mode":"http_request",
+                "url": "https://api.gemini.com/v1/pricefeed",
+                "method": "GET"
+              }]
+        },
+        "tasks":[
+            {
+                "id": "A",
+                "name": "Get prices",
+                "description": "Get price feed",
+                "prompt": "What are the current prices?",
+                "inputs":[],
+                "operator": "function_calling",
+                "outputs":[
+                    {
+                        "type": "write",
+                        "key": "prices",
+                        "value": "__result"
+                    }
+                ]
+            },
+            {
+                "id": "B",
+                "name": "Analyze prices",
+                "description": "Anzlye price feed",
+                "prompt": "Context: <prices>{prices}</prices> \n\n Use the context to find which ticker pair had the highest price change in 24 and has a price above $300?",
+                "inputs":[
+                    {
+                        "name": "prices",
+                        "value": {
+                            "type": "read",
+                            "key": "prices"
+                        },
+                        "required": True
+                    }
+                ],
+                "operator": "generation",
+                "outputs":[
+                    {
+                        "type": "write",
+                        "key": "result",
+                        "value": "__result"
+                    }
+                ]
+            },
+            {
+                "id": "__end",
+                "name": "end",
+                "description": "End of the task",
+                "prompt": "End of the task",
+                "inputs": [],
+                "operator": "end",
+                "outputs": []
+            }
+        ],
+        "steps":[
+            {
+                "source":"A",
+                "target":"B"
+            },
+            {
+                "source":"B",
+                "target":"end"
+            }
+        ],
+        "return_value":{
+            "input":{
+                "type": "read",
+                "key": "result"
+            }
+        }
+    }
+
+    validate_workflow_json(json.dumps(wf, indent=2))

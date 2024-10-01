@@ -16,7 +16,7 @@ from .interface import (
 from .workflow import Workflow, Edge
 from .w_types import Operator
 from .io import Read, GetAll, Size, Peek, Pop, INPUTS, OUTPUTS
-from .tools import CustomToolBuilder, HttpMethod
+from .tools import ToolBuilder, HttpMethod, HttpRequestTool, CustomTool
 import os
 import re
 
@@ -304,11 +304,11 @@ class WorkflowBuilder:
         """
         if not self.workflow.config.custom_tool:
             self.workflow.config.custom_tool = [
-                CustomToolBuilder.build(name, description, url, method, headers, body)
+                ToolBuilder.build(name, description, url, method, headers, body)
             ]
         else:
             self.workflow.config.custom_tool.append(
-                CustomToolBuilder.build(name, description, url, method, headers, body)
+                ToolBuilder.build(name, description, url, method, headers, body)
             )
 
     def build(self) -> Workflow:
