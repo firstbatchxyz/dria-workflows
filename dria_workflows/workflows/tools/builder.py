@@ -79,7 +79,6 @@ class BaseTool(BaseModel):
         for field_name, field_info in self.__fields__.items():
             if field_name in ['name', 'description']:
                 continue
-            print(field_info)
             json_type = self.python_type_to_json_type(field_info.annotation)
             properties[field_name] = {
                 "type": json_type,
