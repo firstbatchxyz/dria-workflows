@@ -6,3 +6,8 @@ poetry.lock
 dist
 .coverage.*
 .coverage
+main.py
+p1.md
+p2.md
+question.md
+sum.json

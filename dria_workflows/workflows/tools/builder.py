@@ -1,11 +1,10 @@
-from pydantic import BaseModel, Field, HttpUrl, ConfigDict
-from typing import Optional, Dict, Any, Union, List, Literal, get_origin, get_args
-from enum import Enum
 import json
+from enum import Enum
+from typing import (Any, Dict, List, Literal, Optional, Union, get_args,
+                    get_origin)
+
 from pydantic import BaseModel, Field
-from typing import Optional, Dict, Any, Union, List, Literal, Type, get_args, get_origin
-from enum import Enum
-import json
+
 
 class HttpMethod(str, Enum):
     GET = "GET"

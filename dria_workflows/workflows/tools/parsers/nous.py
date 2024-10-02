@@ -1,6 +1,6 @@
 import json
 import re
-from typing import  Dict, List
+from typing import Dict, List
 from .base import BaseParser, ParseResult
 
 
@@ -58,4 +58,4 @@ if __name__ == "__main__":
     parser = NousParser()
     result = parser.parse(tool_call_response)
     print("Parsed Result:")
-    print(result[0].to_json())
+    print(result[0])

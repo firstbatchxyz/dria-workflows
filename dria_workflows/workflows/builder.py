@@ -1,6 +1,6 @@
 import logging
 from pydantic import Field, ConfigDict
-from typing import Optional, List, Union, Dict
+from typing import Optional, List, Union, Dict, Literal
 from .interface import (
     Input,
     Output,
@@ -20,6 +20,8 @@ import re
 
 
 class ConditionBuilder:
+
+    @staticmethod
     def build(
         expected: Union[str, int],
         expression: Expression,
@@ -27,7 +29,7 @@ class ConditionBuilder:
         target_if_not: str,
     ) -> Condition:
         return Condition(
-            expected=expected,
+            expected=str(expected),
             expression=expression,
             input=input.value,
             target_if_not=target_if_not,
@@ -37,6 +39,7 @@ class ConditionBuilder:
 class DraftTask(Task):
     required_inputs: Optional[List[str]] = Field(default=None)
     model_config = ConfigDict(arbitrary_types_allowed=True)
+    outputs: List[Output] = []
 
     def add_input(self, input: Input) -> "DraftTask":
         if not self.inputs:
@@ -69,7 +72,9 @@ class DraftTask(Task):
             else:
                 output_keys = [output.key for output in self.outputs]
                 logging.debug(
-                    f"Task '{self.id}' output keys: {', '.join(output_keys)}\n"
+                    "Task '%s' output keys: %s\n",
+                    self.id,
+                    ', '.join(output_keys)
                 )
 
         return Task(
@@ -104,7 +109,7 @@ class TaskBuilder:
         if prompt is None:
             prompt = cls._prompt_from_md(path)
 
-        inputs = []
+        inputs: list[Input] = []
         # check using reges for variables with double brackets {{}} and extract them as inputs,
         # for instance {{query}} -> query and add them to inputs list
         input_names = cls._extract_inputs(prompt)
@@ -121,7 +126,7 @@ class TaskBuilder:
 
         if id != "_end":
             logging.debug(
-                f"Prompt has {len(input_names)} input(s): {', '.join(input_names)}"
+                "Prompt has %s input(s): %s", len(input_names), ', '.join(input_names)
             )
         return DraftTask(
             id=id,
@@ -137,7 +142,7 @@ class TaskBuilder:
     @staticmethod
     def _prompt_from_md(path="./"):
         if path.endswith(".md"):
-            with open(path, "r") as file:
+            with open(path, "r", encoding="utf-8") as file:
                 prompt = file.readlines()
         return "".join(prompt)
 
@@ -198,7 +203,7 @@ class WorkflowBuilder:
 
     def generative_step(
         self,
-        operator: Union[Operator.GENERATION, Operator.FUNCTION_CALLING],
+        operator: Literal[Operator.GENERATION, Operator.FUNCTION_CALLING],
         prompt: Optional[str] = None,
         path: Optional[str] = None,
         id: Optional[str] = None,
@@ -351,12 +356,16 @@ class WorkflowBuilder:
             keys = [output.key for task in self.tasks for output in task.outputs]
 
             logging.debug(
-                f"Warning: No return value set for the workflow. Select one of the {keys} by running set_return_value('key')"
+                "Warning: No return value set for the workflow. Select one of the %s by running set_return_value('key')",
+                keys
             )
 
         return self.workflow
 
     def build_to_dict(self) -> Dict:
+        """
+        
+        """
         workflow = self.build()
         return json.loads(workflow.model_dump_json(exclude_unset=True, exclude_none=True))
 

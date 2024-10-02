@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from typing import List, Dict, Any
 from types import SimpleNamespace
 
+
 class ParseResult:
     name: str
     arguments: Any

@@ -3,6 +3,16 @@ from typing import Any, Union
 
 
 class Workflow(BaseModel):
+    """
+    Workflow class that represents a workflow.
+    
+    Args:
+        config (Config, optional): The configuration of the workflow. Defaults to None.
+        external_memory (Optional[Dict[str, Union[str, StackPage]], optional): The external memory of the workflow. Defaults to None.
+        tasks (List[Task], optional): The tasks of the workflow. Defaults to [].
+        steps (List[Edge], optional): The steps of the workflow. Defaults to [].
+        return_value (Optional[TaskOutput], optional): The return value of the workflow. Defaults to None.
+    """
     config: Config
     external_memory: Optional[Dict[str, Union[str, StackPage]]] = None
     tasks: List[Task] = []
@@ -20,7 +30,7 @@ class Workflow(BaseModel):
     @staticmethod
     def default_config() -> Config:
         return Config(
-            max_steps=50, max_time=200, tools=["ALL"], custom_tool=None, max_tokens=None
+            max_steps=50, max_time=200, tools=["ALL"], custom_tools=None, max_tokens=None
         )
 
     def add_task(self, task: Task) -> None:
@@ -49,5 +59,5 @@ class Workflow(BaseModel):
 
         workflow_dict = self.model_dump(exclude_unset=True, exclude_none=True)
 
-        with open(file_path, "w") as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             json.dump(workflow_dict, f, indent=2)

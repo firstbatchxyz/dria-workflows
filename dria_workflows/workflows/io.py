@@ -20,7 +20,7 @@ class Read:
     This class provides a static method to create Input objects specifically
     for reading values from the workflow's memory.
     """
-
+    @staticmethod
     def new(key: str, required: bool) -> Input:
         return Input(
             name=key,
