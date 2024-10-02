@@ -1,7 +1,7 @@
 import json
 import re
 from typing import Dict, List
-from .base import BaseParser, ParseResult
+from dria_workflows.workflows.tools.parsers.base import BaseParser, ParseResult
 
 
 class OpenAIParser(BaseParser):
@@ -20,37 +20,34 @@ class OpenAIParser(BaseParser):
         Raises:
             ValueError: If the format is invalid or JSON parsing fails.
         """
-        pattern = r"Function:\s*(.+?)\nArguments:\s*(\{.*?\})(?:\n|$)"
+        pattern = r'\{[^{}]*\{[^{}]*\}[^{}]*\}'
         matches = re.findall(pattern, input_str, re.DOTALL)
         if not matches:
             raise ValueError("No function calls found in the input string.")
 
         result = []
-        for func_name, json_str in matches:
-            func_name = func_name.strip()
-            json_str = json_str.strip()
+        for tool_call_string in matches:
+            tool_call_string = tool_call_string.strip().replace("```json", "").replace("```", "")
             try:
-                arguments = json.loads(json_str)
+                tool_call = json.loads(tool_call_string)
             except json.JSONDecodeError as e:
-                raise ValueError(f"Invalid JSON content in function '{func_name}': {e}")
+                raise ValueError(f"Invalid JSON content': {e}")
 
-            if not isinstance(arguments, dict):
-                raise ValueError(f"Arguments for function '{func_name}' must be a JSON object.")
+            if not isinstance(tool_call['arguments'], dict):
+                raise ValueError(f"Arguments for function '{tool_call['name']}' must be a JSON object.")
 
-            result.append(ParseResult(name=func_name.strip(), arguments=arguments))
+            result.append(ParseResult(name=tool_call['name'], arguments=tool_call['arguments']))
 
         return result
 
 
 # Example usage:
 if __name__ == "__main__":
-    input_str = '''Function: google_search_tool
-Arguments: {"query": "most famous street in Istanbul"}
+    input_str = '''{\n "name": "calculator",\n "arguments": {\n  "lhs": 10932,\n  "rhs": 20934\n }\n}
 
-Function: google_search_tool
-Arguments: {"query": "longest river in the world"}'''
+{\n "name": "calculator",\n "arguments": {\n  "lhs": 10932,\n  "rhs": 20934\n }\n}'''
 
     parser = OpenAIParser()
     parsed_functions = parser.parse(input_str)
     print("Parsed Functions:")
-    print(json.dumps(parsed_functions, indent=2))
+    print(f"function lhs: {parsed_functions[0].arguments.lhs} rhs: lhs: {parsed_functions[0].arguments.rhs}")
