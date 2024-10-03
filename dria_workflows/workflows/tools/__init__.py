@@ -1,5 +1,5 @@
 from .builder import ToolBuilder, HttpRequestTool, CustomTool, HttpMethod, CustomToolTemplate, CustomToolMode
-from .parsers import NousParser, LlamaParser, OpenAIParser
+from .parsers import NousParser, LlamaParser, OpenAIParser, ParseResult
 
 __all__ = [
     "ToolBuilder",
@@ -10,4 +10,5 @@ __all__ = [
     "OpenAIParser",
     "CustomToolTemplate",
     "CustomToolMode",
+    'ParseResult'
 ]
