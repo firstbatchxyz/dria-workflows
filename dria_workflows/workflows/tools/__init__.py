@@ -4,6 +4,7 @@ from .parsers import NousParser, LlamaParser, OpenAIParser, ParseResult
 __all__ = [
     "ToolBuilder",
     "HttpRequestTool",
+    "HttpMethod",
     "CustomTool",
     "NousParser",
     "LlamaParser",

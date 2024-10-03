@@ -4,6 +4,7 @@ from typing import (Any, Dict, List, Literal, Optional, Union, get_args,
                     get_origin)
 
 from pydantic import BaseModel, Field
+from abc import ABC, abstractmethod
 
 
 class HttpMethod(str, Enum):
@@ -114,8 +115,10 @@ class BaseTool(BaseModel):
             return "string"
 
 
-class CustomTool(BaseTool):
-    pass
+class CustomTool(BaseTool, ABC):
+    @abstractmethod
+    def execute(self, **kwargs):
+        pass
 
 
 class HttpRequestTool(BaseTool):

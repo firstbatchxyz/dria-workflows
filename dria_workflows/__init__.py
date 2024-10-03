@@ -39,4 +39,5 @@ __all__ = [
     'ParseResult',
     "CustomTool",
     "HttpRequestTool",
+    "HttpMethod",
 ]
