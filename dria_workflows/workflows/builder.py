@@ -160,9 +160,10 @@ class TaskBuilder:
 
 
 class WorkflowBuilder:
-    def __init__(self, memory=None):
+    def __init__(self, memory=None,  **kwargs):
         if memory is None:
             memory = dict()
+        memory.update(kwargs)
         self.workflow = Workflow()
         self.workflow.external_memory = memory
         self.tasks: List[Task] = []
@@ -292,6 +293,9 @@ class WorkflowBuilder:
         self,
         tool: Union[CustomTool, HttpRequestTool]
     ):
+        """
+        Add a custom tool to the workflow.
+        """
         custom_tool = ToolBuilder.build(tool)
         self.workflow.config.custom_tools = self.workflow.config.custom_tools or []
         self.workflow.config.custom_tools.append(
@@ -299,6 +303,9 @@ class WorkflowBuilder:
         )
 
     def build(self) -> Workflow:
+        """
+        Build the workflow.
+        """
 
         for task in self.tasks:
             self.workflow.add_task(task)
