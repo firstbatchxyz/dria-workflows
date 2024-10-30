@@ -1,5 +1,5 @@
 from .interface import *
-from typing import Any, Union
+from typing import List, Union
 
 
 class Workflow(BaseModel):
@@ -7,14 +7,14 @@ class Workflow(BaseModel):
     Workflow class that represents a workflow.
     
     Args:
-        config (Config, optional): The configuration of the workflow. Defaults to None.
-        external_memory (Optional[Dict[str, Union[str, StackPage]], optional): The external memory of the workflow. Defaults to None.
-        tasks (List[Task], optional): The tasks of the workflow. Defaults to [].
-        steps (List[Edge], optional): The steps of the workflow. Defaults to [].
+        :param config (Config, optional): The configuration of the workflow. Defaults to None.
+        :param external_memory (Optional[Dict[str, Union[str, StackPage]], optional): The external memory of the workflow. Defaults to None.
+        :param tasks (List[Task], optional): The tasks of the workflow. Defaults to [].
+        :param steps (List[Edge], optional): The steps of the workflow. Defaults to [].
         return_value (Optional[TaskOutput], optional): The return value of the workflow. Defaults to None.
     """
     config: Config
-    external_memory: Optional[Dict[str, Union[str, StackPage]]] = None
+    external_memory: Optional[Dict[str, Union[str, StackPage, List[str]]]] = None
     tasks: List[Task] = []
     steps: List[Edge] = []
     return_value: Optional[TaskOutput] = None
