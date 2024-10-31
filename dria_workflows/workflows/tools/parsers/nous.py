@@ -35,7 +35,7 @@ class NousParser(BaseParser):
         if not isinstance(data, dict):
             raise ValueError("Parsed content is not a JSON object")
 
-        if 'name' not in data or 'arguments' not in data:
+        if "name" not in data or "arguments" not in data:
             raise ValueError("JSON object must contain 'name' and 'arguments' keys")
         return [ParseResult(**data)]
 

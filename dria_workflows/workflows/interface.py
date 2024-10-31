@@ -1,3 +1,4 @@
+from typing import Dict, List, Optional, Union, Iterator
 from pydantic import BaseModel, Field
 from .w_types import *
 from .tools import CustomToolTemplate

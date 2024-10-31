@@ -1,7 +1,6 @@
 import json
 from enum import Enum
-from typing import (Any, Dict, List, Literal, Optional, Union, get_args,
-                    get_origin)
+from typing import Any, Dict, List, Literal, Optional, Union, get_args, get_origin
 
 from pydantic import BaseModel, Field
 from abc import ABC, abstractmethod
@@ -54,14 +53,16 @@ class CustomToolHttpRequest(CustomToolModeTemplate):
 class CustomToolTemplate(BaseModel):
     name: str
     description: str
-    mode_template: Union[CustomToolCustom, CustomToolHttpRequest] = Field(..., alias="mode")
+    mode_template: Union[CustomToolCustom, CustomToolHttpRequest] = Field(
+        ..., alias="mode"
+    )
 
     class Config:
         populate_by_name = True
 
     def serialize_model(self):
         data = self.dict(by_alias=True, exclude_none=True)
-        mode_template = data.pop('mode')
+        mode_template = data.pop("mode")
         data.update(mode_template)
         return data
 
@@ -74,20 +75,16 @@ class BaseTool(BaseModel):
         properties = {}
         required = []
         for field_name, field_info in self.__fields__.items():
-            if field_name in ['name', 'description']:
+            if field_name in ["name", "description"]:
                 continue
             json_type = self.python_type_to_json_type(field_info.annotation)
             properties[field_name] = {
                 "type": json_type,
-                "description": field_info.description or ""
+                "description": field_info.description or "",
             }
             if field_info.is_required():
                 required.append(field_name)
-        return {
-            "type": "object",
-            "properties": properties,
-            "required": required
-        }
+        return {"type": "object", "properties": properties, "required": required}
 
     @staticmethod
     def python_type_to_json_type(py_type):
@@ -136,7 +133,7 @@ class ToolBuilder:
         return CustomToolTemplate(
             name=tool_instance.name,
             description=tool_instance.description,
-            mode=CustomToolCustom(parameters=custom_parameters)
+            mode=CustomToolCustom(parameters=custom_parameters),
         )
 
     @staticmethod
@@ -148,8 +145,8 @@ class ToolBuilder:
                 url=tool_instance.url,
                 method=tool_instance.method,
                 headers=tool_instance.headers,
-                body=tool_instance.body
-            )
+                body=tool_instance.body,
+            ),
         )
 
     @staticmethod
@@ -163,12 +160,15 @@ class ToolBuilder:
 
 
 if __name__ == "__main__":
+
     class SearchTool(CustomTool):
         name: str = "Search Tool"
         description: str = "A tool that performs searches"
         query: str = Field(..., description="The search query")
         lang: Optional[str] = Field(None, description="The language for the search")
-        n_results: Optional[int] = Field(None, description="The number of results to return")
+        n_results: Optional[int] = Field(
+            None, description="The number of results to return"
+        )
 
     search_tool_instance = SearchTool(query="")
     search_tool = ToolBuilder.build(search_tool_instance)

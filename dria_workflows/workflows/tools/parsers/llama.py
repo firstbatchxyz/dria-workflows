@@ -33,7 +33,9 @@ class LlamaParser(BaseParser):
                 raise ValueError(f"Invalid JSON content in function '{func_name}': {e}")
 
             if not isinstance(arguments, dict):
-                raise ValueError(f"Arguments for function '{func_name}' must be a JSON object.")
+                raise ValueError(
+                    f"Arguments for function '{func_name}' must be a JSON object."
+                )
 
             result.append(ParseResult(name=func_name.strip(), arguments=arguments))
 
@@ -42,10 +44,10 @@ class LlamaParser(BaseParser):
 
 # Example usage:
 if __name__ == "__main__":
-    input_str = '''
+    input_str = """
     <function=google_search_tool>{{"query": "most famous street in Istanbul", "lang": "en", "n_results": 1}}</function>
     <function=google_search_tool>{{"query": "longest river in the world", "lang": "en", "n_results": 1}}</function>
-    '''
+    """
 
     parser = LlamaParser()
     parsed_functions = parser.parse(input_str)

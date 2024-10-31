@@ -1,6 +1,6 @@
 import logging
 from pydantic import Field, ConfigDict
-from typing import Optional, List, Union, Dict, Literal
+from typing import Optional, List, Union, Dict, Literal, get_args
 from .interface import (
     Input,
     Output,
@@ -13,14 +13,13 @@ from .interface import (
     Expression,
 )
 from .workflow import Workflow, Edge
-from .w_types import Operator
+from .w_types import Operator, Tools
 from .tools import ToolBuilder, HttpRequestTool, CustomTool, CustomToolMode
 import json
 import re
 
 
 class ConditionBuilder:
-
     @staticmethod
     def build(
         expected: Union[str, int],
@@ -72,9 +71,7 @@ class DraftTask(Task):
             else:
                 output_keys = [output.key for output in self.outputs]
                 logging.debug(
-                    "Task '%s' output keys: %s\n",
-                    self.id,
-                    ', '.join(output_keys)
+                    "Task '%s' output keys: %s\n", self.id, ", ".join(output_keys)
                 )
 
         return Task(
@@ -89,7 +86,6 @@ class DraftTask(Task):
 
 
 class TaskBuilder:
-
     @classmethod
     def new(
         cls,
@@ -126,7 +122,7 @@ class TaskBuilder:
 
         if id != "_end":
             logging.debug(
-                "Prompt has %s input(s): %s", len(input_names), ', '.join(input_names)
+                "Prompt has %s input(s): %s", len(input_names), ", ".join(input_names)
             )
         return DraftTask(
             id=id,
@@ -160,7 +156,7 @@ class TaskBuilder:
 
 
 class WorkflowBuilder:
-    def __init__(self, memory=None,  **kwargs):
+    def __init__(self, memory=None, **kwargs):
         if memory is None:
             memory = dict()
         memory.update(kwargs)
@@ -208,8 +204,8 @@ class WorkflowBuilder:
         prompt: Optional[str] = None,
         path: Optional[str] = None,
         id: Optional[str] = None,
-            inputs=None,
-            outputs=None,
+        inputs=None,
+        outputs=None,
     ):
         """
         Add a step that uses LLMs. This can either be generation or function_calling
@@ -228,7 +224,14 @@ class WorkflowBuilder:
             if any(task.id == id for task in self.tasks):
                 raise ValueError(f"Task with id '{id}' already exists")
 
-        task = TaskBuilder.new(id=id, prompt=prompt, path=path, _inputs=inputs, operator=operator, mmap=self.map)
+        task = TaskBuilder.new(
+            id=id,
+            prompt=prompt,
+            path=path,
+            _inputs=inputs,
+            operator=operator,
+            mmap=self.map,
+        )
 
         for input in inputs:
             task.add_input(input)
@@ -247,8 +250,8 @@ class WorkflowBuilder:
         self,
         search_query: str,
         id: Optional[str] = None,
-            inputs=None,
-            outputs=None,
+        inputs=None,
+        outputs=None,
     ):
         """
         Add a search step to the workflow.
@@ -278,7 +281,11 @@ class WorkflowBuilder:
                 raise ValueError(f"Task with id '{id}' already exists")
 
         task = TaskBuilder.new(
-            id=id, prompt=search_query, _inputs=inputs, operator=Operator.SEARCH, mmap=self.map
+            id=id,
+            prompt=search_query,
+            _inputs=inputs,
+            operator=Operator.SEARCH,
+            mmap=self.map,
         )
 
         for input in inputs:
@@ -289,18 +296,13 @@ class WorkflowBuilder:
 
         self.tasks.append(task.build())
 
-    def add_custom_tool(
-        self,
-        tool: Union[CustomTool, HttpRequestTool]
-    ):
+    def add_custom_tool(self, tool: Union[CustomTool, HttpRequestTool]):
         """
         Add a custom tool to the workflow.
         """
         custom_tool = ToolBuilder.build(tool)
         self.workflow.config.custom_tools = self.workflow.config.custom_tools or []
-        self.workflow.config.custom_tools.append(
-            custom_tool
-        )
+        self.workflow.config.custom_tools.append(custom_tool)
 
     def build(self) -> Workflow:
         """
@@ -310,14 +312,25 @@ class WorkflowBuilder:
         for task in self.tasks:
             self.workflow.add_task(task)
 
-        if (self.workflow.config.custom_tools and any(tool.mode_template.mode == CustomToolMode.CUSTOM for tool in
-                                                      self.workflow.config.custom_tools)
-                and any(task.operator == Operator.FUNCTION_CALLING for task in self.workflow.tasks)):
+        if (
+            self.workflow.config.custom_tools
+            and any(
+                tool.mode_template.mode == CustomToolMode.CUSTOM
+                for tool in self.workflow.config.custom_tools
+            )
+            and any(
+                task.operator == Operator.FUNCTION_CALLING
+                for task in self.workflow.tasks
+            )
+        ):
             raise ValueError(
-                "Custom tools are not supported with function_calling tasks. Use FUNCTION_CALLING_RAW instead.")
+                "Custom tools are not supported with function_calling tasks. Use FUNCTION_CALLING_RAW instead."
+            )
 
         if self.workflow.config.custom_tools:
-            self.workflow.config.custom_tools = [tool.serialize_model() for tool in self.workflow.config.custom_tools]
+            self.workflow.config.custom_tools = [
+                tool.serialize_model() for tool in self.workflow.config.custom_tools
+            ]
 
         ending_task = TaskBuilder.new(
             id="_end", prompt="", operator=Operator.END, mmap=self.map
@@ -364,17 +377,17 @@ class WorkflowBuilder:
 
             logging.debug(
                 "Warning: No return value set for the workflow. Select one of the %s by running set_return_value('key')",
-                keys
+                keys,
             )
 
         return self.workflow
 
     def build_to_dict(self) -> Dict:
-        """
-        
-        """
+        """ """
         workflow = self.build()
-        return json.loads(workflow.model_dump_json(exclude_unset=True, exclude_none=True))
+        return json.loads(
+            workflow.model_dump_json(exclude_unset=True, exclude_none=True)
+        )
 
     def flow(self, edges: List[Edge]):
         for edge in edges:
@@ -450,3 +463,14 @@ class WorkflowBuilder:
             WorkflowBuilder: The current WorkflowBuilder instance for method chaining.
         """
         self.workflow.config.max_time = max_time
+
+    def set_tools(self, tools: List[Tools]):
+        """
+        Set the tools for the workflow.
+        """
+        for tool in tools:
+            if str(tool) not in set(get_args(Tools)):
+                raise ValueError(
+                    f"Tool '{tool}' is not a valid tool. Choose from: {', '.join(set(get_args(Tools)))}"
+                )
+        self.workflow.config.tools = tools

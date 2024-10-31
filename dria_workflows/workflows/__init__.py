@@ -1,7 +1,16 @@
 from .workflow import Workflow
 from .builder import WorkflowBuilder, ConditionBuilder
 from .interface import Config, Task, Edge, TaskOutput, Condition
-from .tools import NousParser, LlamaParser, OpenAIParser, CustomTool, ParseResult, HttpMethod, HttpRequestTool, CustomToolTemplate
+from .tools import (
+    NousParser,
+    LlamaParser,
+    OpenAIParser,
+    CustomTool,
+    ParseResult,
+    HttpMethod,
+    HttpRequestTool,
+    CustomToolTemplate,
+)
 from .w_types import (
     InputValueType,
     OutputType,
@@ -41,7 +50,7 @@ __all__ = [
     "NousParser",
     "LlamaParser",
     "OpenAIParser",
-    'ParseResult',
+    "ParseResult",
     "CustomTool",
     "HttpRequestTool",
     "HttpMethod",

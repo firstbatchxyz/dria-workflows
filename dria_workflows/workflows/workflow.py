@@ -5,7 +5,7 @@ from typing import List, Union
 class Workflow(BaseModel):
     """
     Workflow class that represents a workflow.
-    
+
     Args:
         :param config (Config, optional): The configuration of the workflow. Defaults to None.
         :param external_memory (Optional[Dict[str, Union[str, StackPage]], optional): The external memory of the workflow. Defaults to None.
@@ -13,6 +13,7 @@ class Workflow(BaseModel):
         :param steps (List[Edge], optional): The steps of the workflow. Defaults to [].
         return_value (Optional[TaskOutput], optional): The return value of the workflow. Defaults to None.
     """
+
     config: Config
     external_memory: Optional[Dict[str, Union[str, StackPage, List[str]]]] = None
     tasks: List[Task] = []
@@ -30,7 +31,11 @@ class Workflow(BaseModel):
     @staticmethod
     def default_config() -> Config:
         return Config(
-            max_steps=50, max_time=200, tools=["ALL"], custom_tools=None, max_tokens=None
+            max_steps=50,
+            max_time=200,
+            tools=["ALL"],
+            custom_tools=None,
+            max_tokens=None,
         )
 
     def add_task(self, task: Task) -> None:

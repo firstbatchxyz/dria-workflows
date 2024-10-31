@@ -36,7 +36,7 @@ __all__ = [
     "NousParser",
     "LlamaParser",
     "OpenAIParser",
-    'ParseResult',
+    "ParseResult",
     "CustomTool",
     "HttpRequestTool",
     "HttpMethod",

@@ -4,6 +4,7 @@ from typing import List, Type, Any
 from types import SimpleNamespace
 from dria_workflows.workflows.tools import CustomTool
 
+
 class ParseResult:
     name: str
     arguments: Any
@@ -16,11 +17,16 @@ class ParseResult:
         self.arguments = SimpleNamespace(**arguments_dict)
 
     def execute(self, tools: List[Type[CustomTool]], **kwargs):
-
         if any(not issubclass(tool_class, CustomTool) for tool_class in tools):
-            invalid_classes = [tool_class.__name__ for tool_class in tools if not issubclass(tool_class, CustomTool)]
-            raise ValueError(f"Classes {invalid_classes} are not subclasses of 'CustomTool'. "
-                             f"Method 'execute' can only be called with subclasses of 'CustomTool'.")
+            invalid_classes = [
+                tool_class.__name__
+                for tool_class in tools
+                if not issubclass(tool_class, CustomTool)
+            ]
+            raise ValueError(
+                f"Classes {invalid_classes} are not subclasses of 'CustomTool'. "
+                f"Method 'execute' can only be called with subclasses of 'CustomTool'."
+            )
 
         for tool_class in tools:
             try:
@@ -42,4 +48,3 @@ class BaseParser(ABC):
         Must be implemented by subclasses.
         """
         pass
-

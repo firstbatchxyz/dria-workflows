@@ -1,5 +1,7 @@
-from typing import Dict, List, Optional, Union
+from typing import Literal
 from enum import Enum
+
+Tools = Literal["browserless", "jina", "serper", "duckduckgo", "stock", "scraper"]
 
 
 class InputValueType(str, Enum):
