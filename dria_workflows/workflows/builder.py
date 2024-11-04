@@ -160,6 +160,30 @@ class WorkflowBuilder:
         if memory is None:
             memory = dict()
         memory.update(kwargs)
+
+        # Type Check for memory
+        for key, value in memory.items():
+            if not isinstance(value, (str, list)):
+                raise ValueError(
+                    f"Unsupported memory type for key {key}. Supported types are str, and List[str]"
+                )
+            for item in value:
+                # Check if item is either str or dict
+                if not isinstance(item, (str, dict)):
+                    raise ValueError(
+                        f"Unsupported memory type for key {key}. Supported types are str, and List[str]"
+                    )
+
+                # If item is dict, check if all keys and values are strings
+                if isinstance(item, dict):
+                    if not all(
+                        isinstance(k, str) and isinstance(v, str)
+                        for k, v in item.items()
+                    ):
+                        raise ValueError(
+                            f"Unsupported memory type for key {key}. Supported types are str, and List[str]"
+                        )
+
         self.workflow = Workflow()
         self.workflow.external_memory = memory
         self.tasks: List[Task] = []
