@@ -422,7 +422,7 @@ class WorkflowBuilder:
                     raise ValueError(f"Target task '{edge.target}' not found")
             self.steps.append(edge)
 
-    def set_return_value(self, key: str):
+    def set_return_value(self, key: Union[str, List[str]]):
         """
         Set the return value for the workflow.
 
@@ -439,18 +439,25 @@ class WorkflowBuilder:
             ValueError: If the specified key does not correspond to any output in the workflow tasks.
         """
         # Check if the key exists in any of the task outputs
-        if not any(
-            key in [output.key for output in task.outputs] for task in self.tasks
-        ):
-            raise ValueError(
-                f"The key '{key}' does not correspond to any output in the workflow tasks."
-            )
+        if isinstance(key, str):
+            key = [key]
+        for k in key:
+            if not any(
+                k in [output.key for output in task.outputs] for task in self.tasks
+            ):
+                raise ValueError(
+                    f"The key '{key}' does not correspond to any output in the workflow tasks."
+                )
 
         to_json = False
-        input_value = InputValue(type=self.map[key][0], key=key)
-        if self.map[key][0] == InputValueType.GET_ALL:
-            to_json = True
-        self.workflow.return_value = TaskOutput(input=input_value, to_json=to_json)
+        if len(key) == 1:
+            input_value = InputValue(type=self.map[key[0]][0], key=key[0])
+            if self.map[key[0]][0] == InputValueType.GET_ALL:
+                to_json = True
+            self.workflow.return_value = TaskOutput(input=input_value, to_json=to_json)
+        else:
+            input_value = [InputValue(type=self.map[k][0], key=k) for k in key]
+            self.workflow.return_value = TaskOutput(input=input_value, to_json=True)
 
     def set_max_tokens(self, max_tokens: int):
         """

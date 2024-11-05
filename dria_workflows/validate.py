@@ -196,23 +196,51 @@ schema = {
             "type": "object",
             "properties": {
                 "input": {
-                    "type": "object",
-                    "properties": {
-                        "type": {
-                            "type": "string",
-                            "enum": [
-                                "input",
-                                "read",
-                                "pop",
-                                "peek",
-                                "get_all",
-                                "size",
-                                "string",
-                            ],
+                    "oneOf": [
+                        {
+                            # Single InputValue
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "enum": [
+                                        "input",
+                                        "read",
+                                        "pop",
+                                        "peek",
+                                        "get_all",
+                                        "size",
+                                        "string",
+                                    ],
+                                },
+                                "key": {"type": "string"},
+                            },
+                            "required": ["type", "key"],
                         },
-                        "key": {"type": "string"},
-                    },
-                    "required": ["type", "key"],
+                        {
+                            # List of InputValue
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "input",
+                                            "read",
+                                            "pop",
+                                            "peek",
+                                            "get_all",
+                                            "size",
+                                            "string",
+                                        ],
+                                    },
+                                    "key": {"type": "string"},
+                                },
+                                "required": ["type", "key"],
+                            },
+                        },
+                    ],
                 },
                 "to_json": {"type": "boolean"},
                 "post_process": {

@@ -55,7 +55,7 @@ class TaskPostProcess(BaseModel):
 
 
 class TaskOutput(BaseModel):
-    input: InputValue
+    input: Union[InputValue, List[InputValue]]
     to_json: Optional[bool] = None
     post_process: Optional[List[TaskPostProcess]] = None
 
