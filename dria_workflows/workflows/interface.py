@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Union, Iterator
+from typing import Dict, List, Optional, Union, Type
 from pydantic import BaseModel, Field
 from .w_types import *
 from .tools import CustomToolTemplate
@@ -43,6 +43,7 @@ class Task(BaseModel):
     name: str
     description: str
     prompt: str
+    schema: Optional[Type[BaseModel]] = None
     inputs: List[Input] = Field(default_factory=list)
     operator: Operator
     outputs: List[Output] = Field(default_factory=list)

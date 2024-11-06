@@ -1,6 +1,6 @@
 import logging
-from pydantic import Field, ConfigDict
-from typing import Optional, List, Union, Dict, Literal, get_args
+from pydantic import Field, ConfigDict, BaseModel
+from typing import Optional, List, Union, Dict, Literal, get_args, Type
 from .interface import (
     Input,
     Output,
@@ -79,6 +79,7 @@ class DraftTask(Task):
             name=self.name,
             description=self.description,
             prompt=self.prompt,
+            schema=self.schema,
             inputs=self.inputs,
             operator=self.operator,
             outputs=self.outputs,
@@ -94,6 +95,7 @@ class TaskBuilder:
         mmap: dict,
         prompt: Optional[str] = None,
         path: Optional[str] = None,
+        schema: Optional[Type[BaseModel]] = None,
         _inputs: Optional[List[Input]] = None,
         name: str = "Task",
         description: str = "Task Description",
@@ -129,6 +131,7 @@ class TaskBuilder:
             name=name,
             description=description,
             prompt=prompt,
+            schema=schema,
             operator=operator,
             inputs=inputs,
             outputs=[],
@@ -228,6 +231,7 @@ class WorkflowBuilder:
         prompt: Optional[str] = None,
         path: Optional[str] = None,
         id: Optional[str] = None,
+        schema: Optional[Type[BaseModel]] = None,
         inputs=None,
         outputs=None,
     ):
@@ -240,6 +244,8 @@ class WorkflowBuilder:
             inputs = []
         if prompt is None and path is None:
             raise ValueError("Either prompt or path for an .md file must be provided")
+        if operator == Operator.FUNCTION_CALLING and schema is not None:
+            raise ValueError("Schema is not supported for FUNCTION_CALLING operator")
 
         if id is None:
             id = str(len(self.tasks))
@@ -252,6 +258,7 @@ class WorkflowBuilder:
             id=id,
             prompt=prompt,
             path=path,
+            schema=schema,
             _inputs=inputs,
             operator=operator,
             mmap=self.map,
