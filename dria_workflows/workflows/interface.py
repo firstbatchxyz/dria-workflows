@@ -38,11 +38,16 @@ class Output(BaseModel):
     value: str
 
 
+class MessageInput(BaseModel):
+    role: str
+    content: str
+
+
 class Task(BaseModel):
     id: str
     name: str
     description: str
-    prompt: str
+    messages: List[MessageInput] = Field(default_factory=list)
     schema: Optional[Type[BaseModel]] = None
     inputs: List[Input] = Field(default_factory=list)
     operator: Operator

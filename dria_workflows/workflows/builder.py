@@ -11,6 +11,7 @@ from .interface import (
     Condition,
     OutputType,
     Expression,
+    MessageInput,
 )
 from .workflow import Workflow, Edge
 from .w_types import Operator, Tools
@@ -78,7 +79,7 @@ class DraftTask(Task):
             id=self.id,
             name=self.name,
             description=self.description,
-            prompt=self.prompt,
+            messages=self.messages,
             schema=self.schema,
             inputs=self.inputs,
             operator=self.operator,
@@ -95,17 +96,21 @@ class TaskBuilder:
         mmap: dict,
         prompt: Optional[str] = None,
         path: Optional[str] = None,
+        msg_history: Optional[List[MessageInput]] = None,
         schema: Optional[Type[BaseModel]] = None,
         _inputs: Optional[List[Input]] = None,
         name: str = "Task",
         description: str = "Task Description",
     ) -> DraftTask:
-        # if both prompt and path is empty, fail
+        # if prompt, messages and path is empty, fail
         if prompt is None and path is None:
             raise ValueError("Either prompt or path must be provided")
 
         if prompt is None:
             prompt = cls._prompt_from_md(path)
+
+        messages = msg_history or []
+        messages.append(MessageInput(role="user", content=prompt))
 
         inputs: list[Input] = []
         # check using reges for variables with double brackets {{}} and extract them as inputs,
@@ -130,7 +135,7 @@ class TaskBuilder:
             id=id,
             name=name,
             description=description,
-            prompt=prompt,
+            messages=messages,
             schema=schema,
             operator=operator,
             inputs=inputs,
@@ -230,6 +235,7 @@ class WorkflowBuilder:
         operator: Literal[Operator.GENERATION, Operator.FUNCTION_CALLING],
         prompt: Optional[str] = None,
         path: Optional[str] = None,
+        msg_history: Optional[List[MessageInput]] = None,
         id: Optional[str] = None,
         schema: Optional[Type[BaseModel]] = None,
         inputs=None,
@@ -258,6 +264,7 @@ class WorkflowBuilder:
             id=id,
             prompt=prompt,
             path=path,
+            msg_history=msg_history,
             schema=schema,
             _inputs=inputs,
             operator=operator,

@@ -52,7 +52,17 @@ schema = {
                     "id": {"type": "string"},
                     "name": {"type": "string"},
                     "description": {"type": "string"},
-                    "prompt": {"type": "string"},
+                    "messages": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "role": {"type": "string"},
+                              "content": {"type": "string"}
+                            },
+                            "required": ["role", "content"]
+                          }
+                        },
                     "inputs": {
                         "type": "array",
                         "items": {
