@@ -141,7 +141,7 @@ schema = {
                         },
                     },
                 },
-                "required": ["id", "name", "description", "prompt", "operator"],
+                "required": ["id", "name", "description", "messages", "operator"],
             },
         },
         "steps": {

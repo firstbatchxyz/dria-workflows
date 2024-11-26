@@ -287,6 +287,9 @@ class WorkflowBuilder:
     def search_step(
         self,
         search_query: str,
+        search_type: Literal["search", "news", "scholar"] = "search",
+        lang: Optional[str] = "en",
+        n_results: Optional[int] = 5,
         id: Optional[str] = None,
         inputs=None,
         outputs=None,
@@ -296,9 +299,12 @@ class WorkflowBuilder:
 
         Args:
             search_query (str): The search query to be used.
-            id (Optional[str]): The unique identifier for this task. If None, a default id will be assigned.
-            inputs (Optional[List[Input]]): List of input parameters for the search task.
-            outputs (Optional[List[Output]]): List of output parameters for the search task.
+            search_type (str): The type of search to be performed. Default is 'search'.
+            lang (str): The language of the search query. Default is 'en'.
+            n_results (int): The number of search results to be returned. Default is 5.
+            id (str): The id of the task. Default is None.
+            inputs (List[Input]): The inputs for the task. Default is None.
+            outputs (List[Output]): The outputs for the task. Default is None.
 
         Raises:
             ValueError: If a task with the given id already exists.
@@ -320,7 +326,7 @@ class WorkflowBuilder:
 
         task = TaskBuilder.new(
             id=id,
-            prompt=search_query,
+            prompt=json.dumps({"query": search_query, "search_type": search_type, "lang": lang, "n_results": n_results}),
             _inputs=inputs,
             operator=Operator.SEARCH,
             mmap=self.map,

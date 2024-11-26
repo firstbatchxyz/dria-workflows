@@ -48,7 +48,7 @@ class Task(BaseModel):
     name: str
     description: str
     messages: List[MessageInput] = Field(default_factory=list)
-    schema: Optional[Type[BaseModel]] = None
+    schema: Optional[Type[BaseModel]] = Field(None, exclude=True)
     inputs: List[Input] = Field(default_factory=list)
     operator: Operator
     outputs: List[Output] = Field(default_factory=list)
