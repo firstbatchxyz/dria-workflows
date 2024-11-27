@@ -336,7 +336,12 @@ class WorkflowBuilder:
             task.add_input(input)
         for output in outputs:
             task.add_output(output)
-            self.__mmap(output.key, output.value)
+            if output.type == OutputType.PUSH:
+                self.__mmap(output.key, [" "])
+            elif output.type == OutputType.WRITE:
+                self.__mmap(output.key, "")
+            else:
+                pass
 
         self.tasks.append(task.build())
 

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dria_workflows"
-version = "0.3.3"
+version = "0.3.4"
 description = "Enables creation of workflows for Dria Agents"
 authors = ["andthattoo <omer@firstbatch.xyz>"]
 license = "MIT"
